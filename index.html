@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Lingkaran: Belajar Geometri Interaktif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        #canvas-container {
+            width: 100%;
+            height: 400px;
+            cursor: move;
+            border-radius: 1rem;
+            overflow: hidden;
+            background: radial-gradient(circle, #1e293b 0%, #0f172a 100%);
+        }
+
+        .nav-link {
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background-color: #3b82f6;
+            transition: width 0.3s;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .math-font {
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body class="bg-slate-50">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md shadow-sm">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white">
+                    <i class="fas fa-circle-notch fa-spin"></i>
+                </div>
+                <span class="text-xl font-bold text-slate-800">E-Lingkaran</span>
+            </div>
+            <div class="hidden md:flex space-x-8 text-slate-600 font-semibold">
+                <a href="#materi" class="nav-link hover:text-blue-600">Materi</a>
+                <a href="#visual" class="nav-link hover:text-blue-600">3D View</a>
+                <a href="#game" class="nav-link hover:text-blue-600">Games</a>
+                <a href="#latihan" class="nav-link hover:text-blue-600">Latihan</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-32 pb-20 px-6">
+        <div class="container mx-auto flex flex-col md:flex-row items-center">
+            <div class="md:w-1/2 space-y-6">
+                <h1 class="text-5xl md:text-6xl font-bold text-slate-900 leading-tight">
+                    Jelajahi Dunia <span class="text-blue-600">Lingkaran</span> Secara Nyata.
+                </h1>
+                <p class="text-lg text-slate-600">
+                    Aplikasi pembelajaran interaktif untuk memahami unsur-unsur, rumus, hingga sudut dalam lingkaran dengan visualisasi 3D yang memukau.
+                </p>
+                <div class="flex space-x-4">
+                    <a href="#materi" class="bg-blue-600 text-white px-8 py-3 rounded-full font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition">Mulai Belajar</a>
+                </div>
+            </div>
+            <div id="visual" class="md:w-1/2 mt-12 md:mt-0">
+                <div class="relative p-4">
+                    <div id="canvas-container" class="shadow-2xl"></div>
+                    <div class="absolute bottom-8 left-8 bg-white/20 p-3 rounded-lg backdrop-blur text-white text-xs">
+                        Tip: Seret untuk memutar objek 3D
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Materi Section -->
+    <section id="materi" class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-slate-900 mb-4">Materi Pembelajaran</h2>
+                <p class="text-slate-600">Pelajari setiap bagian penting dari sebuah lingkaran.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Unsur-unsur Dasar -->
+                <div class="p-8 bg-blue-50 rounded-3xl space-y-4">
+                    <div class="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center mb-6">
+                        <i class="fas fa-shapes"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900">Unsur-unsur Utama</h3>
+                    <ul class="space-y-3 text-slate-700">
+                        <li><span class="font-bold text-blue-600">Jari-jari (r):</span> Garis dari pusat ke titik pada lingkaran.</li>
+                        <li><span class="font-bold text-blue-600">Diameter (d):</span> Garis lurus melewati pusat ($d = 2r$).</li>
+                        <li><span class="font-bold text-blue-600">Busur:</span> Garis lengkung pada tepi lingkaran.</li>
+                        <li><span class="font-bold text-blue-600">Tali Busur:</span> Garis lurus penghubung dua titik pada lingkaran.</li>
+                    </ul>
+                </div>
+
+                <!-- Unsur Kompleks -->
+                <div class="p-8 bg-orange-50 rounded-3xl space-y-4">
+                    <div class="w-12 h-12 bg-orange-500 text-white rounded-2xl flex items-center justify-center mb-6">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900">Daerah & Sudut</h3>
+                    <ul class="space-y-3 text-slate-700">
+                        <li><span class="font-bold text-orange-600">Apotema:</span> Jarak terpendek pusat ke tali busur.</li>
+                        <li><span class="font-bold text-orange-600">Tembereng:</span> Daerah yang dibatasi busur dan tali busur.</li>
+                        <li><span class="font-bold text-orange-600">Sudut Pusat:</span> Sudut yang terbentuk di titik pusat.</li>
+                        <li><span class="font-bold text-orange-600">Sudut Keliling:</span> Sudut yang titik sudutnya di tepi lingkaran.</li>
+                    </ul>
+                </div>
+
+                <!-- Rumus -->
+                <div class="p-8 bg-emerald-50 rounded-3xl space-y-4">
+                    <div class="w-12 h-12 bg-emerald-500 text-white rounded-2xl flex items-center justify-center mb-6">
+                        <i class="fas fa-square-root-variable"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900">Rumus Lingkaran</h3>
+                    <div class="bg-white p-4 rounded-xl shadow-sm space-y-4">
+                        <div class="text-center">
+                            <p class="text-sm text-slate-500">Keliling</p>
+                            <p class="text-xl font-bold math-font">K = 2 · π · r</p>
+                        </div>
+                        <div class="border-t pt-4 text-center">
+                            <p class="text-sm text-slate-500">Luas</p>
+                            <p class="text-xl font-bold math-font">L = π · r²</p>
+                        </div>
+                        <p class="text-xs text-center italic text-slate-400">π ≈ 3.14 atau 22/7</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Game Section -->
+    <section id="game" class="py-20 bg-slate-900 text-white overflow-hidden">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center gap-12">
+                <div class="md:w-1/2 space-y-6">
+                    <span class="px-4 py-1 bg-blue-500 rounded-full text-xs font-bold uppercase tracking-widest">Mini Game</span>
+                    <h2 class="text-4xl font-bold">Uji Refleks Geometrimu!</h2>
+                    <p class="text-slate-400">Pilih bagian lingkaran yang benar sesuai dengan pertanyaan yang muncul. Dapatkan skor tertinggi!</p>
+                    <div id="game-stats" class="flex space-x-8">
+                        <div>
+                            <p class="text-slate-500 text-sm">Skor</p>
+                            <p id="game-score" class="text-3xl font-bold">0</p>
+                        </div>
+                        <div>
+                            <p class="text-slate-500 text-sm">Waktu</p>
+                            <p id="game-timer" class="text-3xl font-bold">30s</p>
+                        </div>
+                    </div>
+                    <button id="start-game" class="bg-white text-slate-900 px-8 py-3 rounded-full font-bold hover:bg-blue-400 hover:text-white transition">
+                        Mulai Game
+                    </button>
+                </div>
+                <div class="md:w-1/2 w-full">
+                    <div id="game-area" class="bg-slate-800 h-80 rounded-3xl flex flex-col items-center justify-center p-8 relative">
+                        <div id="game-question" class="text-xl font-semibold mb-8 text-center text-blue-300">Tekan Mulai untuk bermain!</div>
+                        <div id="game-options" class="grid grid-cols-2 gap-4 w-full opacity-50 pointer-events-none">
+                            <button class="opt-btn bg-slate-700 p-4 rounded-xl hover:bg-blue-600 transition">Opsi A</button>
+                            <button class="opt-btn bg-slate-700 p-4 rounded-xl hover:bg-blue-600 transition">Opsi B</button>
+                            <button class="opt-btn bg-slate-700 p-4 rounded-xl hover:bg-blue-600 transition">Opsi C</button>
+                            <button class="opt-btn bg-slate-700 p-4 rounded-xl hover:bg-blue-600 transition">Opsi D</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Latihan Soal -->
+    <section id="latihan" class="py-20">
+        <div class="container mx-auto px-6 max-w-4xl">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-slate-900 mb-4">Latihan Mandiri</h2>
+                <p class="text-slate-600">Kerjakan soal-soal berikut untuk mengukur pemahamanmu.</p>
+            </div>
+
+            <div class="space-y-12">
+                <!-- Soal 1 -->
+                <div class="glass-card p-8 rounded-3xl shadow-xl">
+                    <div class="flex items-start gap-6">
+                        <div class="bg-blue-100 text-blue-600 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 font-bold">1</div>
+                        <div class="flex-grow">
+                            <p class="text-lg text-slate-800 mb-6 font-semibold">
+                                Sebuah lingkaran memiliki jari-jari $14 \text{ cm}$. Berapakah luas lingkaran tersebut?
+                            </p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <button onclick="checkSoal(this, true)" class="text-left p-4 border rounded-2xl hover:border-blue-500 hover:bg-blue-50 transition">A. $616 \text{ cm}^2$</button>
+                                <button onclick="checkSoal(this, false)" class="text-left p-4 border rounded-2xl hover:border-blue-500 hover:bg-blue-50 transition">B. $154 \text{ cm}^2$</button>
+                                <button onclick="checkSoal(this, false)" class="text-left p-4 border rounded-2xl hover:border-blue-500 hover:bg-blue-50 transition">C. $44 \text{ cm}^2$</button>
+                                <button onclick="checkSoal(this, false)" class="text-left p-4 border rounded-2xl hover:border-blue-500 hover:bg-blue-50 transition">D. $88 \text{ cm}^2$</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Soal 2 -->
+                <div class="glass-card p-8 rounded-3xl shadow-xl">
+                    <div class="flex items-start gap-6 flex-col md:flex-row">
+                        <div class="bg-blue-100 text-blue-600 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 font-bold">2</div>
+                        <div class="flex-grow">
+                            <p class="text-lg text-slate-800 mb-4 font-semibold">
+                                Perhatikan gambar sudut di bawah. Jika besar sudut pusat $\angle AOB$ adalah $120^\circ$, berapakah besar sudut keliling $\angle ACB$?
+                            </p>
+                            
+                            <!-- Visualisasi Geometri via SVG -->
+                            <div class="bg-white p-4 rounded-xl border mb-6 flex justify-center">
+                                <svg width="200" height="200" viewBox="0 0 200 200">
+                                    <circle cx="100" cy="100" r="80" stroke="#cbd5e1" stroke-width="2" fill="none" />
+                                    <!-- Sudut Pusat -->
+                                    <path d="M 100 100 L 169.28 140 M 100 100 L 30.72 140" stroke="#3b82f6" stroke-width="3" />
+                                    <!-- Sudut Keliling -->
+                                    <path d="M 100 20 L 169.28 140 M 100 20 L 30.72 140" stroke="#f59e0b" stroke-width="3" />
+                                    <circle cx="100" cy="100" r="3" fill="#3b82f6" />
+                                    <text x="100" y="115" font-size="12" text-anchor="middle">O</text>
+                                    <text x="175" y="150" font-size="12">B</text>
+                                    <text x="15" y="150" font-size="12">A</text>
+                                    <text x="100" y="15" font-size="12" text-anchor="middle">C</text>
+                                </svg>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <button onclick="checkSoal(this, false)" class="text-left p-4 border rounded-2xl hover:border-blue-500 transition">A. $240^\circ$</button>
+                                <button onclick="checkSoal(this, true)" class="text-left p-4 border rounded-2xl hover:border-blue-500 transition">B. $60^\circ$</button>
+                                <button onclick="checkSoal(this, false)" class="text-left p-4 border rounded-2xl hover:border-blue-500 transition">C. $120^\circ$</button>
+                                <button onclick="checkSoal(this, false)" class="text-left p-4 border rounded-2xl hover:border-blue-500 transition">D. $30^\circ$</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-100 py-12">
+        <div class="container mx-auto px-6 text-center text-slate-500">
+            <p>© 2024 E-Lingkaran Interaktif • Math is Fun</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- THREE.JS 3D VISUALIZATION ---
+        let scene, camera, renderer, object3d;
+
+        function init3D() {
+            scene = new THREE.Scene();
+            const container = document.getElementById('canvas-container');
+            const w = container.clientWidth;
+            const h = container.clientHeight;
+
+            camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000);
+            camera.position.z = 5;
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(w, h);
+            container.appendChild(renderer.domElement);
+
+            // Create a Disc (Circle in 3D)
+            const geometry = new THREE.TorusGeometry(2, 0.05, 16, 100);
+            const material = new THREE.MeshPhongMaterial({ 
+                color: 0x3b82f6,
+                emissive: 0x1e3a8a,
+                shininess: 100
+            });
+            object3d = new THREE.Mesh(geometry, material);
+            scene.add(object3d);
+
+            // Add center point
+            const pointGeom = new THREE.SphereGeometry(0.1, 32, 32);
+            const pointMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const point = new THREE.Mesh(pointGeom, pointMat);
+            scene.add(point);
+
+            // Lighting
+            const light = new THREE.PointLight(0xffffff, 1, 100);
+            light.position.set(5, 5, 5);
+            scene.add(light);
+            scene.add(new THREE.AmbientLight(0x404040));
+
+            animate3D();
+        }
+
+        function animate3D() {
+            requestAnimationFrame(animate3D);
+            object3d.rotation.x += 0.005;
+            object3d.rotation.y += 0.01;
+            renderer.render(scene, camera);
+        }
+
+        // Handle Resize
+        window.addEventListener('resize', () => {
+            const container = document.getElementById('canvas-container');
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+
+        // --- MINI GAME LOGIC ---
+        const questions = [
+            { q: "Garis dari pusat ke tepi?", a: "Jari-jari", options: ["Diameter", "Jari-jari", "Apotema", "Busur"] },
+            { q: "Garis tengah lingkaran?", a: "Diameter", options: ["Tali Busur", "Jari-jari", "Diameter", "Busur"] },
+            { q: "Jarak terpendek pusat ke tali busur?", a: "Apotema", options: ["Jari-jari", "Diameter", "Apotema", "Tembereng"] },
+            { q: "Daerah yang dibatasi busur & tali busur?", a: "Tembereng", options: ["Juring", "Tembereng", "Apotema", "Diameter"] },
+            { q: "Sudut di titik pusat?", a: "Sudut Pusat", options: ["Sudut Keliling", "Sudut Pusat", "Siku-siku", "Refleks"] }
+        ];
+
+        let score = 0;
+        let timeLeft = 30;
+        let gameActive = false;
+        let gameInterval;
+
+        const startBtn = document.getElementById('start-game');
+        const scoreEl = document.getElementById('game-score');
+        const timerEl = document.getElementById('game-timer');
+        const questionEl = document.getElementById('game-question');
+        const optionsArea = document.getElementById('game-options');
+
+        startBtn.onclick = () => {
+            if (gameActive) return;
+            startGame();
+        };
+
+        function startGame() {
+            gameActive = true;
+            score = 0;
+            timeLeft = 30;
+            scoreEl.innerText = score;
+            startBtn.classList.add('opacity-50', 'pointer-events-none');
+            optionsArea.classList.remove('opacity-50', 'pointer-events-none');
+            
+            gameInterval = setInterval(() => {
+                timeLeft--;
+                timerEl.innerText = timeLeft + "s";
+                if (timeLeft <= 0) endGame();
+            }, 1000);
+
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            const current = questions[Math.floor(Math.random() * questions.length)];
+            questionEl.innerText = current.q;
+            
+            const buttons = document.querySelectorAll('.opt-btn');
+            current.options.sort(() => Math.random() - 0.5).forEach((opt, i) => {
+                buttons[i].innerText = opt;
+                buttons[i].onclick = () => {
+                    if (opt === current.a) {
+                        score += 10;
+                        scoreEl.innerText = score;
+                        buttons[i].classList.replace('bg-slate-700', 'bg-green-600');
+                    } else {
+                        buttons[i].classList.replace('bg-slate-700', 'bg-red-600');
+                    }
+                    setTimeout(() => {
+                        buttons[i].classList.remove('bg-green-600', 'bg-red-600');
+                        buttons[i].classList.add('bg-slate-700');
+                        nextQuestion();
+                    }, 300);
+                };
+            });
+        }
+
+        function endGame() {
+            gameActive = false;
+            clearInterval(gameInterval);
+            questionEl.innerText = "Waktu Habis! Skor Akhir: " + score;
+            startBtn.classList.remove('opacity-50', 'pointer-events-none');
+            startBtn.innerText = "Main Lagi";
+            optionsArea.classList.add('opacity-50', 'pointer-events-none');
+        }
+
+        // --- LATIHAN SOAL UI ---
+        function checkSoal(btn, isCorrect) {
+            const parent = btn.parentElement;
+            const allBtns = parent.querySelectorAll('button');
+            
+            allBtns.forEach(b => {
+                b.classList.remove('border-green-500', 'bg-green-50', 'border-red-500', 'bg-red-50');
+                b.disabled = true;
+            });
+
+            if (isCorrect) {
+                btn.classList.add('border-green-500', 'bg-green-50');
+                btn.innerHTML += " <i class='fas fa-check-circle ml-2 text-green-600'></i>";
+            } else {
+                btn.classList.add('border-red-500', 'bg-red-50');
+                btn.innerHTML += " <i class='fas fa-times-circle ml-2 text-red-600'></i>";
+            }
+        }
+
+        // Start 3D on Load
+        window.onload = init3D;
+    </script>
+</body>
+</html>
